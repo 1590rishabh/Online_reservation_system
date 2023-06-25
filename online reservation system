@@ -1,0 +1,169 @@
+//Online reservation system
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Scanner;
+
+class Main {
+    private static Map<String, String> userCredentials = new HashMap<>();
+    private static Map<String, Reservation> reservations = new HashMap<>();
+
+    public static void main(String[] args) {
+        initializeData();
+
+        Scanner scanner = new Scanner(System.in);
+
+        boolean loggedIn = false;
+        String loggedInUser = null;
+
+        while (!loggedIn) {
+            System.out.print("Enter your login ID: ");
+            String loginId = scanner.nextLine();
+            System.out.print("Enter your password: ");
+            String password = scanner.nextLine();
+
+            if (authenticateUser(loginId, password)) {
+                loggedIn = true;
+                loggedInUser = loginId;
+            } else {
+                System.out.println("Authentication failed. Invalid login ID or password.");
+            }
+        }
+
+        System.out.println("Welcome, " + loggedInUser + "!");
+
+        boolean quit = false;
+
+        while (!quit) {
+            System.out.println("\nPlease select an option:");
+            System.out.println("1. Reservation");
+            System.out.println("2. Cancellation");
+            System.out.println("3. Quit");
+
+            int choice = scanner.nextInt();
+            scanner.nextLine(); // Consume newline character
+
+            switch (choice) {
+                case 1:
+                    reservationForm(scanner, loggedInUser);
+                    break;
+                case 2:
+                    cancellationForm(scanner, loggedInUser);
+                    break;
+                case 3:
+                    quit = true;
+                    break;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+        }
+
+        System.out.println("Thank you for using the Online Reservation System. Goodbye!");
+    }
+
+    public static void initializeData() {
+        // Initialize user credentials and reservations for demonstration
+        userCredentials.put("log in", "password");
+        userCredentials.put("Rishabh", "123456");
+
+        Reservation reservation1 = new Reservation("ABC123", "Pratham", "Train 123",
+                "First Class", "2023-07-01", "Delhi", "Kanpur");
+
+        Reservation reservation2 = new Reservation("DEF456", "Naincy", "Train 456",
+                "Second Class", "2023-07-02", "Allahabad", "Lucknow");
+
+        reservations.put(reservation1.getPnrNumber(), reservation1);
+        reservations.put(reservation2.getPnrNumber(), reservation2);
+    }
+
+    public static boolean authenticateUser(String loginId, String password) {
+        String storedPassword = userCredentials.get(loginId);
+        return storedPassword != null && storedPassword.equals(password);
+    }
+
+    public static void reservationForm(Scanner scanner, String loggedInUser) {
+        System.out.println("\nReservation Form");
+        System.out.print("Enter your name: ");
+        String name = scanner.nextLine();
+        System.out.print("Enter train number: ");
+        String trainNumber = scanner.nextLine();
+        System.out.print("Enter class type: ");
+        String classType = scanner.nextLine();
+        System.out.print("Enter date of journey: ");
+        String dateOfJourney = scanner.nextLine();
+        System.out.print("Enter source: ");
+        String source = scanner.nextLine();
+        System.out.print("Enter destination: ");
+        String destination = scanner.nextLine();
+
+        String pnrNumber = generatePnrNumber();
+        Reservation reservation = new Reservation(pnrNumber, name, trainNumber, classType, dateOfJourney, source, destination);
+        reservations.put(pnrNumber, reservation);
+
+        System.out.println("\nReservation successful!");
+        System.out.println("PNR Number: " + pnrNumber);
+    }
+
+    public static void cancellationForm(Scanner scanner, String loggedInUser) {
+        System.out.println("\nCancellation Form");
+        System.out.print("Enter PNR number: ");
+        String pnrNumber = scanner.nextLine();
+
+        Reservation reservation = reservations.get(pnrNumber);
+        if (reservation != null) {
+            System.out.println("\nReservation details:");
+            System.out.println(reservation);
+
+            System.out.print("Are you sure you want to cancel this reservation? (Y/N): ");
+            String confirmation = scanner.nextLine();
+
+            if (confirmation.equalsIgnoreCase("Y")) {
+                reservations.remove(pnrNumber);
+                System.out.println("Reservation canceled successfully.");
+            } else {
+                System.out.println("Reservation cancellation aborted.");
+            }
+        } else {
+            System.out.println("No reservation found with the provided PNR number.");
+        }
+    }
+
+    public static String generatePnrNumber() {
+        // Generate a random PNR number for demonstration purposes
+        return "PNR" + (int) (Math.random() * 1000000);
+    }
+}
+
+class Reservation {
+    private String pnrNumber;
+    private String name;
+    private String trainNumber;
+    private String classType;
+    private String dateOfJourney;
+    private String source;
+    private String destination;
+
+    public Reservation(String pnrNumber, String name, String trainNumber, String classType, String dateOfJourney, String source, String destination) {
+        this.pnrNumber = pnrNumber;
+        this.name = name;
+        this.trainNumber = trainNumber;
+        this.classType = classType;
+        this.dateOfJourney = dateOfJourney;
+        this.source = source;
+        this.destination = destination;
+    }
+
+    public String getPnrNumber() {
+        return pnrNumber;
+    }
+
+    @Override
+    public String toString() {
+        return "PNR Number: " + pnrNumber +
+                "\nName: " + name +
+                "\nTrain Number: " + trainNumber +
+                "\nClass Type: " + classType +
+                "\nDate of Journey: " + dateOfJourney +
+                "\nSource: " + source +
+                "\nDestination: " + destination;
+    }
+}
